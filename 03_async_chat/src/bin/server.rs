@@ -1,6 +1,4 @@
 use tokio::net::TcpListener;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::sync::broadcast;
 
 #[tokio::main]
 async fn main() {
@@ -13,7 +11,7 @@ async fn main() {
     loop {
         // TODO 2: 接続を受け入れる (listener.accept().await)
         // let (mut socket, addr) = ...
-        
+
         // ダミー（無限ループ回避のため）
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         println!("Waiting for connections...");

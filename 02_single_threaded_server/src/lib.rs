@@ -24,7 +24,7 @@ impl ThreadPool {
         // TODO: チャネルを作成し、Workerを生成する
         // let (sender, receiver) = mpsc::channel();
         // let receiver = Arc::new(Mutex::new(receiver));
-        
+
         ThreadPool {
             // workers,
             // sender: Some(sender),
@@ -58,7 +58,7 @@ struct Worker {
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         // TODO: thread::spawn でスレッドを生成し、receiverからJobを受け取るループを作る
-        
+
         let thread = thread::spawn(move || {
             // loop { ... }
         });

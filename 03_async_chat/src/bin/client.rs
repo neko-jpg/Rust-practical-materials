@@ -1,6 +1,6 @@
-use tokio::net::TcpStream;
+use tokio::io::stdin;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::io::{stdin, stdout};
+use tokio::net::TcpStream;
 
 #[tokio::main]
 async fn main() {
@@ -11,7 +11,7 @@ async fn main() {
     // ストリームを読み込み用と書き込み用に分割
     let (reader, mut writer) = stream.split();
     let mut reader = BufReader::new(reader);
-    
+
     // 標準入力の準備
     let mut stdin_reader = BufReader::new(stdin());
     let mut stdin_line = String::new();

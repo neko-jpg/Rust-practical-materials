@@ -1,5 +1,4 @@
 use mockall::automock;
-use proptest::prelude::*;
 
 // 1. Mocking: 依存関係の抽象化
 #[automock]
@@ -34,6 +33,7 @@ pub fn multiply(a: i32, b: i32) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn test_register_success() {

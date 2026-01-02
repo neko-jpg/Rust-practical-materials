@@ -1,7 +1,6 @@
 use std::env;
-use std::fs;
-use std::process;
 use std::error::Error;
+use std::process;
 
 fn main() {
     // 1. コマンドライン引数を取得します
@@ -27,10 +26,10 @@ fn main() {
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // TODO: ファイルの内容を読み込む
     // ヒント: fs::read_to_string(...)
-    let contents = ""; 
+    let contents = "";
 
     // 検索を行い、結果を表示する
-    for line in search(&config.query, &contents) {
+    for line in search(&config.query, contents) {
         println!("{}", line);
     }
 
@@ -40,12 +39,12 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
 // 検索ロジック
 // query と contents の参照を受け取り、contents のライフタイムに紐付いたスライスを返します
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
+
 
     // TODO: 行ごとに反復処理し、queryを含む行をresultsに追加する
     // ヒント: contents.lines() を使う
 
-    results
+    Vec::new()
 }
 
 // 設定を保持する構造体
@@ -60,7 +59,7 @@ impl Config {
         if args.len() < 3 {
             return Err("引数が足りません。使用法: <検索文字列> <ファイル名>");
         }
-        
+
         // TODO: args[1] と args[2] を取得して Config を作成する
         let query = String::new(); // 修正してください
         let filename = String::new(); // 修正してください

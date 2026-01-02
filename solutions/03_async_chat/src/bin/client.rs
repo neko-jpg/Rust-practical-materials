@@ -1,17 +1,17 @@
-use tokio::net::TcpStream;
+use tokio::io::stdin;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::io::{stdin, stdout};
+use tokio::net::TcpStream;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO 1: サーバーに接続する
-    let mut stream = TcpStream::connect("127.0.0.1:8080").await.unwrap();
+    let mut stream = TcpStream::connect("127.0.0.1:8080").await?;
     println!("Connected to server!");
 
     // ストリームを読み込み用と書き込み用に分割
     let (reader, mut writer) = stream.split();
     let mut reader = BufReader::new(reader);
-    
+
     // 標準入力の準備
     let mut stdin_reader = BufReader::new(stdin());
     let mut stdin_line = String::new();
@@ -23,21 +23,40 @@ async fn main() {
         tokio::select! {
             // サーバーからデータが来たとき
             result = reader.read_line(&mut server_line) => {
-                let bytes_read = result.unwrap();
-                if bytes_read == 0 {
-                    println!("Server closed connection");
-                    break;
+                match result {
+                    Ok(0) => {
+                         println!("Server closed connection");
+                         break;
+                    }
+                    Ok(_) => {
+                        print!("Server: {}", server_line);
+                    }
+                    Err(e) => {
+                        eprintln!("Error reading from server: {}", e);
+                        break;
+                    }
                 }
-                print!("Server: {}", server_line);
             }
 
             // ユーザーがキーボード入力したとき
             result = stdin_reader.read_line(&mut stdin_line) => {
-                let _ = result.unwrap();
-                // TODO 3: 入力された内容をサーバーに送信する
-                writer.write_all(stdin_line.as_bytes()).await.unwrap();
-                stdin_line.clear();
+                match result {
+                    Ok(0) => break, // EOF
+                    Ok(_) => {
+                        // TODO 3: 入力された内容をサーバーに送信する
+                        if let Err(e) = writer.write_all(stdin_line.as_bytes()).await {
+                             eprintln!("Failed to write to server: {}", e);
+                             break;
+                        }
+                        stdin_line.clear();
+                    }
+                    Err(e) => {
+                        eprintln!("Error reading from stdin: {}", e);
+                        break;
+                    }
+                }
             }
         }
     }
+    Ok(())
 }

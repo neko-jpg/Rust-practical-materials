@@ -22,6 +22,12 @@ jobs:
       with:
         components: rustfmt, clippy
 
+    - name: Swatinem/rust-cache
+      uses: Swatinem/rust-cache@v2
+
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+
     - name: Run CI for All Projects
       run: |
         # チェック対象のディレクトリリスト
@@ -55,6 +61,14 @@ jobs:
             FAILED=1
           fi
           
+          # cargo audit (security check)
+          # Only warn for now as we don't want to block CI for starter templates unless critical
+          echo "Running audit..."
+          if ! cargo audit; then
+             echo "::warning file=$dir/Cargo.toml::Audit failed for $dir"
+             # FAILED=1  <-- Uncomment to enforce security checks
+          fi
+
           cd ..
         done
 
@@ -81,6 +95,12 @@ jobs:
             if ! cargo test; then
                echo "::error::Tests failed for $SOL_DIR"
                FAILED=1
+            fi
+
+            echo "Running audit..."
+            if ! cargo audit; then
+               echo "::warning::Audit failed for $SOL_DIR"
+               # FAILED=1 <-- Uncomment to enforce security checks
             fi
             
             cd ../..
