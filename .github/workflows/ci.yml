@@ -22,18 +22,72 @@ jobs:
       with:
         components: rustfmt, clippy
 
-    - name: Check formatting
+    - name: Run CI for All Projects
       run: |
-        cargo fmt --all -- --check
+        # チェック対象のディレクトリリスト
+        PROJECTS="00_tooling 01_mini_grep 02_single_threaded_server 03_async_chat 04_rest_api 05_testing 06_observability"
+        
+        # エラーが発生しても止まらずに最後まで実行し、最後に失敗させるフラグ
+        FAILED=0
 
-    - name: Lint with clippy
-      run: |
-        cargo clippy --all-targets --all-features -- -D warnings
+        for dir in $PROJECTS; do
+          echo "------------------------------------------------"
+          echo "Checking Project: $dir"
+          echo "------------------------------------------------"
+          
+          cd $dir
+          
+          echo "Running fmt..."
+          if ! cargo fmt -- --check; then
+            echo "::error file=$dir/Cargo.toml::Format check failed for $dir"
+            FAILED=1
+          fi
 
-    - name: Build and Test All Projects
-      run: |
-        # 各ディレクトリを順にテスト
-        for dir in 00_tooling 01_mini_grep 02_single_threaded_server 03_async_chat 04_rest_api 05_testing 06_observability; do
-          echo "Testing $dir..."
-          cd $dir && cargo test && cd ..
+          echo "Running clippy..."
+          if ! cargo clippy -- -D warnings; then
+            echo "::error file=$dir/Cargo.toml::Clippy check failed for $dir"
+            FAILED=1
+          fi
+
+          echo "Running test..."
+          if ! cargo test; then
+            echo "::error file=$dir/Cargo.toml::Tests failed for $dir"
+            FAILED=1
+          fi
+          
+          cd ..
         done
+
+        # Solutions (解答編) もチェックする
+        # ※ 解答コードが正しいことを保証するため
+        for dir in $PROJECTS; do
+          SOL_DIR="solutions/$dir"
+          if [ -d "$SOL_DIR" ]; then
+            echo "------------------------------------------------"
+            echo "Checking Solution: $SOL_DIR"
+            echo "------------------------------------------------"
+            
+            cd $SOL_DIR
+            
+            # 解答は fmt, clippy, test すべてパスする必要がある
+            if ! cargo fmt -- --check; then
+               echo "::error::Format check failed for $SOL_DIR"
+               FAILED=1
+            fi
+            if ! cargo clippy -- -D warnings; then
+               echo "::error::Clippy check failed for $SOL_DIR"
+               FAILED=1
+            fi
+            if ! cargo test; then
+               echo "::error::Tests failed for $SOL_DIR"
+               FAILED=1
+            fi
+            
+            cd ../..
+          fi
+        done
+
+        if [ $FAILED -ne 0 ]; then
+          echo "One or more checks failed."
+          exit 1
+        fi
