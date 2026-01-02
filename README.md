@@ -1,5 +1,8 @@
 # Rust Engineering Bootcamp
 
+<img width="2752" height="1536" alt="image" src="https://github.com/user-attachments/assets/7fcbf6a7-0c93-4a30-8d6a-163c0ef94cdd" />
+
+
 このカリキュラムは、Rustの文法を理解したエンジニアが、**「実務で通用する高品質なソフトウェア」** を設計・実装できるようになるための統合プログラムです。
 
 ## カリキュラム構造
