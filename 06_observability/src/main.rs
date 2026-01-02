@@ -21,7 +21,7 @@ async fn main() {
 #[instrument]
 async fn process_request(request_id: &str) {
     info!("Processing request");
-    
+
     // 擬似的な重い処理
     tokio::time::sleep(std::time::Duration::from_millis(100)).await;
 

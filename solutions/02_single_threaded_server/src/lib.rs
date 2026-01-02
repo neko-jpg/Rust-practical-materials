@@ -28,7 +28,7 @@ impl ThreadPool {
         assert!(size > 0);
 
         let (sender, receiver) = mpsc::channel();
-        
+
         // Receiverは複数のスレッドで共有する必要があるため、
         // Arc (Atomic Reference Counting) と Mutex (Mutual Exclusion) で包みます。
         let receiver = Arc::new(Mutex::new(receiver));
@@ -68,10 +68,13 @@ impl Drop for ThreadPool {
 
         for worker in &mut self.workers {
             println!("Shutting down worker {}", worker.id);
-            
+
             // スレッドの終了を待機する
             if let Some(thread) = worker.thread.take() {
-                thread.join().unwrap();
+                // スレッドがパニックしていても、ここでは終了を待つだけなのでエラーは無視またはログ出力
+                if let Err(_) = thread.join() {
+                    eprintln!("Worker {} thread panicked", worker.id);
+                }
             }
         }
     }
@@ -89,7 +92,9 @@ impl Worker {
         let thread = thread::spawn(move || loop {
             // ロックを取得してメッセージを受信
             // recv() はチャネルが閉じられるまでブロックする
-            let message = receiver.lock().unwrap().recv();
+            // lock() が失敗した場合は PoisonError なので、一般的にはパニックさせるか回復を試みる
+            // ここでは簡易的に expect を使用
+            let message = receiver.lock().expect("Mutex is poisoned").recv();
 
             match message {
                 Ok(job) => {

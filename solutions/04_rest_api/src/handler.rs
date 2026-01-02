@@ -12,7 +12,6 @@ use crate::model::{CreateProduct, Product};
 pub async fn list_products(
     State(pool): State<SqlitePool>,
 ) -> Result<Json<Vec<Product>>, (StatusCode, String)> {
-    
     // sqlx::query_as! マクロを使うとコンパイル時にSQLチェックができるが、
     // 環境構築の簡便さのため query_as 関数を使用する
     let products = sqlx::query_as::<_, Product>("SELECT id, name, price FROM products")
@@ -28,7 +27,6 @@ pub async fn create_product(
     State(pool): State<SqlitePool>,
     Json(payload): Json<CreateProduct>,
 ) -> Result<Json<Product>, (StatusCode, String)> {
-    
     let id = sqlx::query("INSERT INTO products (name, price) VALUES (?, ?)")
         .bind(&payload.name)
         .bind(payload.price)
@@ -51,7 +49,6 @@ pub async fn get_product(
     State(pool): State<SqlitePool>,
     Path(id): Path<i64>,
 ) -> Result<Json<Product>, (StatusCode, String)> {
-    
     // optional: データがない場合は404を返す処理が必要
     let product = sqlx::query_as::<_, Product>("SELECT id, name, price FROM products WHERE id = ?")
         .bind(id)

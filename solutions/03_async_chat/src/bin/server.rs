@@ -1,20 +1,27 @@
-use tokio::net::TcpListener;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::net::TcpListener;
 use tokio::sync::broadcast;
 
 #[tokio::main]
-async fn main() {
-    let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let listener = TcpListener::bind("127.0.0.1:8080").await?;
     println!("Chat Server running on 127.0.0.1:8080");
 
     // TODO 1: ブロードキャストチャネルを作成する
-    // (tx, _rx) = broadcast::channel(10); 
+    // (tx, _rx) = broadcast::channel(10);
     // キャパシティは10メッセージ分
     let (tx, _rx) = broadcast::channel(10);
 
     loop {
         // TODO 2: 接続を受け入れる (listener.accept().await)
-        let (mut socket, addr) = listener.accept().await.unwrap();
+        // 接続エラーがあってもループを回し続ける
+        let (mut socket, addr) = match listener.accept().await {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("Failed to accept connection: {}", e);
+                continue;
+            }
+        };
         println!("New connection: {}", addr);
 
         // クライアントごとに送信チャンネルのクローンを作成
@@ -33,22 +40,39 @@ async fn main() {
                 tokio::select! {
                     // ソケットからメッセージが来た場合（クライアント -> サーバー）
                     result = reader.read_line(&mut line) => {
-                        if result.unwrap() == 0 {
-                            break; // 接続切れ
+                         match result {
+                            Ok(0) => break, // Connection closed
+                            Ok(_) => {
+                                // TODO 4: 受け取ったメッセージを全クライアントにブロードキャスト送信する
+                                // tx.send(...)
+                                print!("Received from {}: {}", addr, line);
+                                // メッセージ送信失敗（受信者がいないなど）は無視して継続
+                                let _ = tx.send((line.clone(), addr));
+                                line.clear();
+                            }
+                            Err(e) => {
+                                eprintln!("Error reading from socket: {}", e);
+                                break;
+                            }
                         }
-                        // TODO 4: 受け取ったメッセージを全クライアントにブロードキャスト送信する
-                        // tx.send(...)
-                        print!("Received from {}: {}", addr, line);
-                        tx.send((line.clone(), addr)).unwrap();
-                        line.clear();
                     }
-                    
+
                     // 他のクライアントからのメッセージがチャネルに来た場合（サーバー -> クライアント）
                     result = rx.recv() => {
-                        let (msg, other_addr) = result.unwrap();
-                        // 自分以外のメッセージなら書き込む
-                        if addr != other_addr {
-                            writer.write_all(msg.as_bytes()).await.unwrap();
+                        match result {
+                            Ok((msg, other_addr)) => {
+                                // 自分以外のメッセージなら書き込む
+                                if addr != other_addr {
+                                    if let Err(e) = writer.write_all(msg.as_bytes()).await {
+                                        eprintln!("Failed to write to socket: {}", e);
+                                        break;
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Broadcast receive error: {}", e);
+                                break;
+                            }
                         }
                     }
                 }

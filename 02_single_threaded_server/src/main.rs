@@ -1,9 +1,6 @@
 use std::io::prelude::*;
 use std::net::TcpListener;
 use std::net::TcpStream;
-use std::fs;
-use std::thread;
-use std::time::Duration;
 
 // use single_threaded_server::ThreadPool; // Level 2.8で有効化
 
@@ -20,7 +17,7 @@ fn main() {
         // TODO: ここでリクエストを処理する
         // シングルスレッドの場合: handle_connection(stream);
         // マルチスレッドの場合 (Level 2.8): pool.execute(|| handle_connection(stream));
-        
+
         handle_connection(stream);
     }
 }

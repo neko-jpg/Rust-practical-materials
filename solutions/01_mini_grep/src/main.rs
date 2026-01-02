@@ -1,7 +1,7 @@
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::process;
-use std::error::Error;
 
 fn main() {
     // 1. コマンドライン引数を取得します

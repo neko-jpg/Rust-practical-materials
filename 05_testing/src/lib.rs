@@ -1,5 +1,4 @@
 use mockall::automock;
-use proptest::prelude::*;
 
 // 1. Mocking: 依存関係の抽象化
 #[automock]

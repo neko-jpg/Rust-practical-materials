@@ -12,6 +12,7 @@ pub struct Product {
 
 // APIリクエスト（入力）用の構造体
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct CreateProduct {
     pub name: String,
     pub price: i64,
