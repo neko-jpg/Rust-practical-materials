@@ -1,0 +1,39 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+
+    - name: Check formatting
+      run: |
+        cargo fmt --all -- --check
+
+    - name: Lint with clippy
+      run: |
+        cargo clippy --all-targets --all-features -- -D warnings
+
+    - name: Build and Test All Projects
+      run: |
+        # 各ディレクトリを順にテスト
+        for dir in 00_tooling 01_mini_grep 02_single_threaded_server 03_async_chat 04_rest_api 05_testing 06_observability; do
+          echo "Testing $dir..."
+          cd $dir && cargo test && cd ..
+        done

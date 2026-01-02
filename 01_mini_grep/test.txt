@@ -1,0 +1,5 @@
+Rust is a systems programming language.
+It is fast and safe.
+Safe, fast, productive.
+Pick three.
+I love Rust.

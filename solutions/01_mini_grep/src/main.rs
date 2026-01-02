@@ -25,9 +25,8 @@ fn main() {
 
 // アプリケーションのロジック
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    // TODO: ファイルの内容を読み込む
-    // ヒント: fs::read_to_string(...)
-    let contents = ""; 
+    // ファイルの内容を読み込む
+    let contents = fs::read_to_string(config.filename)?;
 
     // 検索を行い、結果を表示する
     for line in search(&config.query, &contents) {
@@ -42,8 +41,12 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
 
-    // TODO: 行ごとに反復処理し、queryを含む行をresultsに追加する
-    // ヒント: contents.lines() を使う
+    // 行ごとに反復処理し、queryを含む行をresultsに追加する
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
 
     results
 }
@@ -60,10 +63,8 @@ impl Config {
         if args.len() < 3 {
             return Err("引数が足りません。使用法: <検索文字列> <ファイル名>");
         }
-        
-        // TODO: args[1] と args[2] を取得して Config を作成する
-        let query = String::new(); // 修正してください
-        let filename = String::new(); // 修正してください
+        let query = args[1].clone();
+        let filename = args[2].clone();
 
         Ok(Config { query, filename })
     }
