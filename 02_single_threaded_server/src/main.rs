@@ -24,7 +24,8 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
+    // Clippy: unused_io_amount 対策 (学習用コードなので厳密なハンドリングは省略)
+    let _ = stream.read(&mut buffer).unwrap();
 
     // TODO: リクエストを解析してレスポンスを返す
     // 1. "GET / HTTP/1.1" かどうか確認
