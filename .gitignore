@@ -1,0 +1,21 @@
+# Rust build artifacts
+target/
+**/target/
+
+# Secret files (Database URLs, API Keys)
+.env
+**/.env
+
+# Backups and temporary files
+*.swp
+*.rs.bk
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# SQLite database file
+*.db
+*.db-shm
+*.db-wal

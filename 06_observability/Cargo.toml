@@ -1,0 +1,12 @@
+[package]
+name = "observability"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+# 構造化ロギングのデファクトスタンダード
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+# 計測 (Metrics)
+metrics = "0.21"
