@@ -38,9 +38,7 @@ fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
 // 検索ロジック
 // query と contents の参照を受け取り、contents のライフタイムに紐付いたスライスを返します
-fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-
-
+fn search<'a>(_query: &str, _contents: &'a str) -> Vec<&'a str> {
     // TODO: 行ごとに反復処理し、queryを含む行をresultsに追加する
     // ヒント: contents.lines() を使う
 

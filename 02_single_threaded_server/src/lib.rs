@@ -14,6 +14,7 @@ pub struct ThreadPool {
 }
 
 // スレッドプールに送信するタスクの型定義
+#[allow(dead_code)]
 type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl ThreadPool {
@@ -32,7 +33,7 @@ impl ThreadPool {
     }
 
     /// クロージャを受け取り、それを空いているスレッドで実行します。
-    pub fn execute<F>(&self, f: F)
+    pub fn execute<F>(&self, _f: F)
     where
         F: FnOnce() + Send + 'static,
     {
@@ -50,12 +51,15 @@ impl Drop for ThreadPool {
 
 // 実際にスレッドを保持し、Jobを待機する労働者
 // (この構造体はプライベートでOK)
+#[allow(dead_code)]
 struct Worker {
     id: usize,
     thread: Option<thread::JoinHandle<()>>,
 }
 
+#[allow(dead_code)]
 impl Worker {
+    #[allow(unused_variables)]
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         // TODO: thread::spawn でスレッドを生成し、receiverからJobを受け取るループを作る
 

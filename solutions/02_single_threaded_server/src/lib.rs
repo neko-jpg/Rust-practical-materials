@@ -72,7 +72,7 @@ impl Drop for ThreadPool {
             // スレッドの終了を待機する
             if let Some(thread) = worker.thread.take() {
                 // スレッドがパニックしていても、ここでは終了を待つだけなのでエラーは無視またはログ出力
-                if let Err(_) = thread.join() {
+                if thread.join().is_err() {
                     eprintln!("Worker {} thread panicked", worker.id);
                 }
             }
